@@ -1,0 +1,68 @@
+{% extends "layout.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="text-center">
+        <h1>Welcome, {{ username }}!</h1>
+        <p class="lead">You are logged in to the Deepfake Detection Platform. Explore the tools and features below.</p>
+    </div>
+
+    <!-- Features Section -->
+    <div class="row mt-5">
+        <!-- 
+        <div class="col-md-4">
+            
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi bi-upload display-4 text-primary"></i>
+                    <h5 class="card-title mt-3">Upload Image</h5>
+                    <p class="card-text">Upload images for deepfake detection and analysis.</p>
+                    <a href="/upload-image" class="btn btn-primary">Upload Now</a>
+                </div>
+            </div>
+            
+        </div>
+         -->
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi bi-graph-up display-4 text-success"></i>
+                    <h5 class="card-title mt-3">Detection History</h5>
+                    <p class="card-text">View the results of your previous uploads and detections.</p>
+                    <a href="/history" class="btn btn-success">View History</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <i class="bi bi-info-circle display-4 text-danger"></i>
+                    <h5 class="card-title mt-3">Upload Video</h5>
+                    <p class="card-text">Upload video for deepfake detection and analysis.</p>
+                    <a href="/upload-video" class="btn btn-danger">Upload Now</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Info Section -->
+    <div class="card mt-5 shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4>Your Account Information</h4>
+        </div>
+        <div class="card-body">
+            <ul class="list-group">
+                <li class="list-group-item"><strong>Username:</strong> {{ username }}</li>
+                <li class="list-group-item"><strong>Email:</strong> {{ session.user_email }}</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Logout Button -->
+    <div class="text-center mt-4">
+        <a href="/logout" class="btn btn-danger btn-lg">Logout</a>
+    </div>
+</div>
+{% endblock %}

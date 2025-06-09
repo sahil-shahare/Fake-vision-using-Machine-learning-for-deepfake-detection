@@ -1,0 +1,159 @@
+{% extends "layout.html" %}
+
+{% block title %}Upload Video{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card mt-5 shadow-sm">
+                <div class="card-header bg-primary text-white text-center">
+                    <h2>Upload Video for Analysis...</h2>
+                </div>
+                <div class="card-body">
+                    <!-- Success Message -->
+                    {% if success %}
+                    <div class="alert alert-success">
+                        {{ success }}
+                    </div>
+                    {% endif %}
+
+                    <!-- Error Message -->
+                    {% if error %}
+                    <div class="alert alert-danger">
+                        {{ error }}
+                    </div>
+                    {% endif %}
+
+                    <!-- Frame Carousel -->
+                    {% if results %}
+                    <div id="frameCarousel" class="carousel slide mt-4" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            {% for chunk in results|batch(6) %}
+                            <div class="carousel-item {% if loop.first %}active{% endif %}">
+                                <div class="row">
+                                    {% for result in chunk %}
+                                    <div class="col-6 col-sm-4 col-md-3 col-lg-2 text-center">
+                                        <img src="{{ url_for('static', filename=result.image_path) }}" 
+                                             class="img-thumbnail mb-2" 
+                                             alt="Frame {{ result.frame }}">
+                                        <h6>Frame {{ result.frame }}</h6>
+                                        <p>
+                                            <strong>{{ result.prediction }}</strong><br>
+                                            <small>Confidence: {{ result.confidence }}</small>
+                                        </p>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <a class="carousel-control-prev" href="#frameCarousel" role="button" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </a>
+                        <a class="carousel-control-next" href="#frameCarousel" role="button" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </a>
+                    </div>
+
+                    <!-- Charts Section -->
+                    <div class="mt-5">
+                        <h4>Analysis Summary</h4>
+                        <div class="row">
+                            <!-- Pie Chart -->
+                            <div class="col-md-6">
+                                <canvas id="pieChart"></canvas>
+                            </div>
+                            <!-- Bar Chart -->
+                            <div class="col-md-6">
+                                <canvas id="barChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Upload Form -->
+                    <form method="POST" action="/upload-videos" enctype="multipart/form-data" class="mt-4">
+                        <div class="mb-3">
+                            <label for="video" class="form-label">Choose a Video</label>
+                            <input type="file" class="form-control" id="video" name="video" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Upload</button>
+                    </form>
+                </div>
+                <div class="card-footer text-center">
+                    <p class="text-muted">Supported formats: MP4</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js Script -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Data for charts (passed from Flask)
+    const chartResults = {{ results|default([])|tojson }};  // Default to an empty array
+    let fakeCount = 0;
+    let realCount = 0;
+
+    chartResults.forEach(result => {
+        if (result.prediction === "FAKE") {
+            fakeCount++;
+        } else if (result.prediction === "REAL") {
+            realCount++;
+        }
+    });
+
+    // Pie Chart
+    const pieCtx = document.getElementById('pieChart').getContext('2d');
+    new Chart(pieCtx, {
+        type: 'pie',
+        data: {
+            labels: ['FAKE', 'REAL'],
+            datasets: [{
+                data: [fakeCount, realCount],
+                backgroundColor: ['#FF5733', '#33FF57'],
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                }
+            }
+        }
+    });
+
+    // Bar Chart
+    const barCtx = document.getElementById('barChart').getContext('2d');
+    new Chart(barCtx, {
+        type: 'bar',
+        data: {
+            labels: ['FAKE', 'REAL'],
+            datasets: [{
+                label: 'Count',
+                data: [fakeCount, realCount],
+                backgroundColor: ['#FF5733', '#33FF57'],
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false,
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+
+{% endblock %}
