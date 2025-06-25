@@ -1,0 +1,63 @@
+{% extends "layout.html" %}
+
+{% block title %}Deepfake Detection Platform{% endblock %}
+
+{% block content %}
+<div class="container text-center">
+    <!-- Hero Section -->
+    <div class="hero-section py-5 text-white" style="background: linear-gradient(135deg, #007bff, #6610f2); border-radius: 8px; margin-bottom: 30px;">
+        <h1 class="display-4 font-weight-bold">Welcome to Deepfake Detection</h1>
+        <p class="lead">
+            Cutting-edge technology to uncover the truth behind images and videos. Safeguard your trust in the digital age.
+        </p>
+        <a href="{{ url_for('login') }}" class="btn btn-light btn-lg mx-2 mt-3">Get Started</a>
+        <a href="https://en.wikipedia.org/wiki/Deepfake" class="btn btn-outline-light btn-lg mx-2 mt-3" target="_blank">Learn More</a>
+    </div>
+
+    <!-- Why Detect Deepfakes Section -->
+    <div class="row mt-5">
+        <div class="col-md-6">
+            <img src="{{ url_for('static', filename='images/risk.jpg') }}" alt="Deepfake Risks" class="img-fluid rounded shadow">
+        </div>
+        <div class="col-md-6 d-flex flex-column justify-content-center">
+            <h2 class="text-primary mb-3">Why Detect Deepfakes?</h2>
+            <p class="text-muted">
+                Deepfake technology has revolutionized media creation but poses significant ethical, legal, and societal challenges. Protect yourself and your organization from misinformation and fraud.
+            </p>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item bg-transparent text-dark">✅ Preserve the integrity of information.</li>
+                <li class="list-group-item bg-transparent text-dark">✅ Protect against misinformation and fraud.</li>
+                <li class="list-group-item bg-transparent text-dark">✅ Ensure digital content authenticity.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- How It Works Section -->
+    <div class="row mt-5">
+        <div class="col-md-6 d-flex flex-column justify-content-center">
+            <h2 class="text-primary mb-3">How It Works</h2>
+            <p class="text-muted">
+                Upload an image or video, and our AI-driven system analyzes it for signs of manipulation. By leveraging state-of-the-art neural networks, we provide a confidence score indicating the content's authenticity.
+            </p>
+            <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg mt-3">Try Now</a>
+        </div>
+        <div class="col-md-6">
+            <img src="{{ url_for('static', filename='images/how-it-works.jpg') }}" alt="How it Works" class="img-fluid rounded shadow">
+        </div>
+    </div>
+
+    <!-- Featured Video Section -->
+    <div class="mt-5">
+        <h2 class="text-primary mb-4">See It in Action</h2>
+        <div class="ratio ratio-16x9 mb-5">
+            <iframe class="rounded shadow" src="https://www.youtube.com/embed/o2DDU4g0PRo" allowfullscreen></iframe>
+        </div>
+    </div>
+
+    <!-- Call to Action -->
+    <div class="py-5 text-white" style="background: linear-gradient(135deg, #6f42c1, #007bff); border-radius: 8px;">
+        <h2 class="font-weight-bold mb-3">Join Us in Building Trust in the Digital World</h2>
+        <a href="{{ url_for('signup') }}" class="btn btn-light btn-lg mx-2">Sign Up Now</a>
+    </div>
+</div>
+{% endblock %}

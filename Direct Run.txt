@@ -1,0 +1,19 @@
+Steps
+---------
+venv\Scripts\Activate
+	
+set FLASK_APP=app.py
+
+flask run
+
+
+
+
+
+Project Url : http://127.0.0.1:5000/
+
+Admin Login
+------------
+http://127.0.0.1:5000/admin
+Email: admin@example.com
+Password: admin123

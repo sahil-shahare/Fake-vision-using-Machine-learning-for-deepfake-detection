@@ -1,0 +1,59 @@
+{% extends "layout.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="text-center mb-5">
+    <h1 class="display-5">Welcome, {{ username }}!</h1>
+    <p class="text-muted">Deepfake Detection Dashboard</p>
+</div>
+
+<div class="row justify-content-center g-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow">
+            <div class="card-body text-center">
+                <i class="bi bi-image display-4 text-info"></i>
+                <h5 class="card-title mt-3">Upload Image</h5>
+                <p class="card-text">Submit an image for deepfake analysis and classification.</p>
+                <a href="{{ url_for('upload_image') }}" class="btn btn-outline-info">Upload Image</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow">
+            <div class="card-body text-center">
+                <i class="bi bi-camera-video-fill display-4 text-primary"></i>
+                <h5 class="card-title mt-3">Upload Video</h5>
+                <p class="card-text">Submit a video for deepfake analysis and frame-wise prediction.</p>
+                <a href="{{ url_for('upload_video') }}" class="btn btn-outline-primary">Start Upload</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow">
+            <div class="card-body text-center">
+                <i class="bi bi-bar-chart-fill display-4 text-success"></i>
+                <h5 class="card-title mt-3">Detection History</h5>
+                <p class="card-text">Review past analyses, view frame confidence charts, and export results.</p>
+                <a href="{{ url_for('history') }}" class="btn btn-outline-success">View History</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mt-5 shadow">
+    <div class="card-header bg-dark text-white">
+        Account Details
+    </div>
+    <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item"><strong>Username:</strong> {{ username }}</li>
+            <li class="list-group-item"><strong>Email:</strong> {{ session.user_email }}</li>
+        </ul>
+    </div>
+</div>
+
+<div class="text-center mt-4">
+    <a href="{{ url_for('logout') }}" class="btn btn-danger btn-lg"><i class="bi bi-box-arrow-right"></i> Logout</a>
+</div>
+{% endblock %}

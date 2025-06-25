@@ -1,0 +1,115 @@
+{% extends "layout.html" %}
+{% block title %}Upload Video{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card mt-5 shadow-sm">
+                <div class="card-header bg-primary text-white text-center">
+                    <h2>Upload Video for Analysis</h2>
+                </div>
+                <div class="card-body">
+
+                    <!-- Flash Messages -->
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                      {% if messages %}
+                        {% for category, message in messages %}
+                          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                          </div>
+                        {% endfor %}
+                      {% endif %}
+                    {% endwith %}
+
+                    <!-- Uploaded Video Preview -->
+                    {% if video_url %}
+                    <h5>Uploaded Video</h5>
+                    <video width="100%" height="auto" controls>
+                        <source src="{{ url_for('static', filename=video_url) }}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    {% endif %}
+
+                    <!-- Sampled Frame Display -->
+                    {% if frame_data %}
+                    <h5 class="mt-4">Sampled Frames</h5>
+                    <div class="d-flex flex-wrap gap-3">
+                        {% for frame in frame_data %}
+                        <div class="text-center">
+                            <img src="{{ url_for('static', filename=frame.path) }}" class="img-thumbnail" width="150">
+                            <p class="mt-1 mb-0">Confidence: {{ frame.confidence }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Line Chart for Frame-by-Frame Confidence -->
+                    <h5 class="mt-5">Confidence Per Frame</h5>
+                    <canvas id="frameConfidenceChart" height="100"></canvas>
+                    {% endif %}
+
+                    <!-- Upload Form -->
+                    <form method="POST" action="{{ url_for('upload_video') }}" enctype="multipart/form-data" class="mt-4">
+                        <div class="mb-3">
+                            <label for="video" class="form-label">Choose a Video</label>
+                            <input type="file" class="form-control" id="video" name="video" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Upload</button>
+                    </form>
+                </div>
+                <div class="card-footer text-center">
+                    <p class="text-muted">Supported formats: MP4</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Frame Confidence Chart Script -->
+{% if frame_data %}
+<script>
+    const frameLabels = [...Array({{ frame_data|length }}).keys()];
+    const frameScores = {{ frame_data|map(attribute='confidence')|list|tojson }};
+
+    const ctx = document.getElementById('frameConfidenceChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: frameLabels,
+            datasets: [{
+                label: 'Confidence Score',
+                data: frameScores,
+                borderColor: 'rgba(54, 162, 235, 1)',
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                fill: true,
+                tension: 0.3,
+                pointRadius: 3
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    suggestedMin: 0,
+                    suggestedMax: 1,
+                    title: {
+                        display: true,
+                        text: 'Confidence'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Frame Index'
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endif %}
+{% endblock %}

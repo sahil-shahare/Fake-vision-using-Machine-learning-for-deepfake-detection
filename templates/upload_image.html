@@ -1,0 +1,45 @@
+{% extends "layout.html" %}
+{% block title %}Upload Image{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card mt-5 shadow-sm">
+                <div class="card-header bg-primary text-white text-center">
+                    <h2>Upload Image for Analysis</h2>
+                </div>
+                <div class="card-body">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    {% if image_url %}
+                    <div class="text-center mb-3">
+                        <img src="{{ url_for('static', filename=image_url) }}" class="img-fluid rounded shadow-sm" alt="Uploaded Image">
+                    </div>
+                    {% endif %}
+
+                    <form method="POST" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="image" class="form-label">Choose an Image</label>
+                            <input type="file" class="form-control" id="image" name="image" accept="image/*" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Analyze</button>
+                    </form>
+                </div>
+                <div class="card-footer text-center">
+                    <p class="text-muted">Supported formats: JPG, PNG, JPEG</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
