@@ -11,6 +11,7 @@ from torchvision import transforms
 from PIL import Image
 from datetime import datetime
 import cv2
+import urllib.request
 
 # --- App Config ---
 app = Flask(__name__)
@@ -61,7 +62,17 @@ def preprocess_frame(frame):
     return transform(img).unsqueeze(0).to(device)
 
 # --- Load EfficientNet Deepfake Model ---
+def download_model_if_needed():
+    model_url = "https://drive.google.com/uc?id=1K67r5mpaul5TWlZ2EtXABNArUFSteY4x&export=download"
+    model_path = "models/efficientnet_deepfake.pth"
+    os.makedirs("models", exist_ok=True)
+    if not os.path.exists(model_path):
+        print("Downloading model...")
+        urllib.request.urlretrieve(model_url, model_path)
+        print("Model downloaded.")
+
 def load_model():
+    download_model_if_needed()
     model = timm.create_model("efficientnet_b0", pretrained=False, num_classes=1).to(device)
     weights = torch.load("models/efficientnet_deepfake.pth", map_location=device)
     model.load_state_dict(weights)
