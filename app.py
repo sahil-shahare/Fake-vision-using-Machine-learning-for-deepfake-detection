@@ -14,7 +14,7 @@ import cv2
 
 # --- App Config ---
 app = Flask(__name__)
-app.secret_key = os.urandom(24).hex()
+app.secret_key = os.environ.get("SECRET_KEY", "default-fallback-key")
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(os.path.abspath(os.path.dirname(__file__)), 'site.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
