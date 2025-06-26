@@ -1,6 +1,10 @@
 services:
   - type: web
     name: Fake-Vision: ML-Powered Deepfake Detection
-    env: python
-    startCommand: python app.py
-    autoDeploy: true
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
+    plan: free
+    envVars:
+      - key: FLASK_ENV
+        value: production
