@@ -1,11 +1,8 @@
 __pycache__/
 *.pyc
-*.pyo
-*.pyd
 .env
-*.sqlite3
 instance/
-.env.*
 uploads/
+static/uploads/*
 models/
-*.pth
+site.db
