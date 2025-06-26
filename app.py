@@ -11,7 +11,7 @@ from torchvision import transforms
 from PIL import Image
 from datetime import datetime
 import cv2
-import urllib.request
+import requests
 
 # --- App Config ---
 app = Flask(__name__)
@@ -63,13 +63,31 @@ def preprocess_frame(frame):
 
 # --- Load EfficientNet Deepfake Model ---
 def download_model_if_needed():
-    model_url = "https://drive.google.com/uc?id=1K67r5mpaul5TWlZ2EtXABNArUFSteY4x&export=download"
+    model_url = "https://drive.google.com/uc?id=1K67r5mpaul5TWlZ2EtXABNArUFSteY4x"
     model_path = "models/efficientnet_deepfake.pth"
     os.makedirs("models", exist_ok=True)
     if not os.path.exists(model_path):
-        print("Downloading model...")
-        urllib.request.urlretrieve(model_url, model_path)
-        print("Model downloaded.")
+        print("Downloading model from Google Drive...")
+        session = requests.Session()
+        response = session.get(model_url, stream=True)
+
+        def get_confirm_token(resp):
+            for key, value in resp.cookies.items():
+                if key.startswith('download_warning'):
+                    return value
+            return None
+
+        token = get_confirm_token(response)
+        if token:
+            params = {'id': '1K67r5mpaul5TWlZ2EtXABNArUFSteY4x', 'confirm': token}
+            response = session.get("https://drive.google.com/uc?export=download", params=params, stream=True)
+
+        with open(model_path, "wb") as f:
+            for chunk in response.iter_content(32768):
+                if chunk:
+                    f.write(chunk)
+
+        print("Model downloaded to", model_path)
 
 def load_model():
     download_model_if_needed()
