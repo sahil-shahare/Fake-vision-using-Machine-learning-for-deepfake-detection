@@ -9,9 +9,13 @@ import random
 import numpy as np
 from torchvision import transforms
 from PIL import Image
-from datetime import datetime
+from datetime import datetime, timedelta
 import cv2
 import requests
+import signal
+import sys
+import atexit
+import shutil
 
 # --- App Config ---
 app = Flask(__name__)
@@ -21,6 +25,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(os.path.absp
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
+# --- Init Extensions ---
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 
@@ -61,38 +66,11 @@ def preprocess_frame(frame):
     img = Image.fromarray(frame)
     return transform(img).unsqueeze(0).to(device)
 
-# --- Load EfficientNet Deepfake Model ---
-def download_model_if_needed():
-    model_url = "https://drive.google.com/uc?id=1K67r5mpaul5TWlZ2EtXABNArUFSteY4x"
-    model_path = "models/efficientnet_deepfake.pth"
-    os.makedirs("models", exist_ok=True)
-    if not os.path.exists(model_path):
-        print("Downloading model from Google Drive...")
-        session = requests.Session()
-        response = session.get(model_url, stream=True)
-
-        def get_confirm_token(resp):
-            for key, value in resp.cookies.items():
-                if key.startswith('download_warning'):
-                    return value
-            return None
-
-        token = get_confirm_token(response)
-        if token:
-            params = {'id': '1K67r5mpaul5TWlZ2EtXABNArUFSteY4x', 'confirm': token}
-            response = session.get("https://drive.google.com/uc?export=download", params=params, stream=True)
-
-        with open(model_path, "wb") as f:
-            for chunk in response.iter_content(32768):
-                if chunk:
-                    f.write(chunk)
-
-        print("Model downloaded to", model_path)
-
+# --- Load Model ---
 def load_model():
-    download_model_if_needed()
+    model_path = "models/efficientnet_deepfake.pth"
     model = timm.create_model("efficientnet_b0", pretrained=False, num_classes=1).to(device)
-    weights = torch.load("models/efficientnet_deepfake.pth", map_location=device)
+    weights = torch.load(model_path, map_location=device)
     model.load_state_dict(weights)
     model.eval()
     return model
@@ -112,7 +90,6 @@ def inject_user():
         user_email=session.get('user_email')
     )
 
-# --- Routes ---
 @app.route('/')
 def index():
     return render_template("index.html")
@@ -175,7 +152,6 @@ def upload_image():
                 flash(f"Prediction: {result} (Confidence: {confidence:.2%})", "info")
                 return render_template("upload_image.html", image_url=f"uploads/{unique_name}")
             except Exception as e:
-                print("Error:", e)
                 flash("Failed to process image.", "danger")
     return render_template("upload_image.html")
 
@@ -240,7 +216,33 @@ def logout():
     flash("Logged out.", "info")
     return redirect(url_for('login'))
 
-# --- Auto DB Create on Run ---
+# --- Cleanup Utility ---
+def cleanup_temp_uploads():
+    uploads_folder = app.config['UPLOAD_FOLDER']
+    now = datetime.utcnow()
+
+    for item in os.listdir(uploads_folder):
+        path = os.path.join(uploads_folder, item)
+        try:
+            if os.path.isdir(path) and item.endswith("_frames"):
+                shutil.rmtree(path)
+            elif os.path.isfile(path):
+                file_time = datetime.utcfromtimestamp(os.path.getmtime(path))
+                if now - file_time > timedelta(hours=24):
+                    os.remove(path)
+        except Exception:
+            pass
+
+# --- Graceful Shutdown ---
+def graceful_shutdown(signum=None, frame=None):
+    cleanup_temp_uploads()
+    sys.exit(0)
+
+signal.signal(signal.SIGINT, graceful_shutdown)
+signal.signal(signal.SIGTERM, graceful_shutdown)
+atexit.register(cleanup_temp_uploads)
+
+# --- Main ---
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
@@ -248,4 +250,5 @@ if __name__ == '__main__':
             default_pw = bcrypt.generate_password_hash("admin123").decode('utf-8')
             db.session.add(User(username="admin", email="admin@example.com", password=default_pw))
             db.session.commit()
-    app.run(debug=True)
+
+    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
