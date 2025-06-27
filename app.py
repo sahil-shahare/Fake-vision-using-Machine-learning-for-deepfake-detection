@@ -249,11 +249,15 @@ if __name__ == '__main__':
 
     is_windows = platform.system() == "Windows"
     port = int(os.environ.get("PORT", 5000))
+    local_url = f"http://127.0.0.1:{port}"
 
     if is_windows:
         from waitress import serve
-        print("🚀 Running with Waitress (Windows)")
+        print(f"🚀 Running with Waitress (Windows)")
+        print(f"🌐 Open your browser: {local_url}")
         serve(app, host="0.0.0.0", port=port)
     else:
-        print("🟢 Run using: gunicorn app:app --bind 0.0.0.0:$PORT")
+        print(f"🟢 Use gunicorn for production: gunicorn app:app --bind 0.0.0.0:{port}")
+        print(f"🌐 Open your browser: {local_url}")
         app.run(host="0.0.0.0", port=port)
+
