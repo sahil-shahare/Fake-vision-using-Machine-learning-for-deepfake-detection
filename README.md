@@ -8,15 +8,15 @@ A Python and web-based application to detect deepfakes using machine learning te
 
 ##  Table of Contents
 
-- [Project Overview]  
-- [Features]  
-- [Repository Structure]  
-- [Installation]  
-- [Usage]  
-- [Model Training & Database]  
-- [Deployment] 
-- [Contributing] 
-- [License]
+- [Project Overview](#project-overview)  
+- [Features](#features)  
+- [Repository Structure](#repository-structure)  
+- [Installation](#installation)  
+- [Usage](#usage)  
+- [Model Training & Database](#model-training-database)  
+- [Deployment](#deployment)  
+- [Contributing](#contributing)  
+- [License](#license)
 
 ---
 
